@@ -68,7 +68,11 @@ export default class StripeUPEPaymentStrategy implements PaymentStrategy {
         private _stripeScriptLoader: StripeUPEScriptLoader,
         private _storeCreditActionCreator: StoreCreditActionCreator,
         private _billingAddressActionCreator: BillingAddressActionCreator,
-    ) {}
+    ) {
+        console.log(this._paymentMethodActionCreator); // TODO: remove PaymentMethodActionCreator;
+        console.log(this._unsubscribe); // TODO: remove _unsubscribe;
+        console.log(this._isMounted); // TODO: remove _isMounted;
+    }
 
     async initialize(options: PaymentInitializeOptions): Promise<InternalCheckoutSelectors> {
         const { stripeupe, methodId, gatewayId } = options;
@@ -83,49 +87,49 @@ export default class StripeUPEPaymentStrategy implements PaymentStrategy {
             );
         }
 
-        this._loadStripeElement(stripeupe, gatewayId, methodId).catch((error) =>
+        await this._loadStripeElement(stripeupe, gatewayId, methodId).catch((error) =>
             stripeupe.onError?.(error),
         );
 
-        this._unsubscribe = await this._store.subscribe(
-            async (_state) => {
-                const payment = this._stripeElements?.getElement(StripeElementType.PAYMENT);
+        // this._unsubscribe = await this._store.subscribe(
+        //     async (_state) => {
+        //         const payment = this._stripeElements?.getElement(StripeElementType.PAYMENT);
 
-                if (payment) {
-                    let error;
+        //         if (payment) {
+        //             // let error;
 
-                    await this._store
-                        .dispatch(
-                            this._paymentMethodActionCreator.loadPaymentMethod(gatewayId, {
-                                params: { method: methodId },
-                            }),
-                        )
-                        .catch((err) => (error = err));
+        //             // await this._store
+        //             //     .dispatch(
+        //             //         this._paymentMethodActionCreator.loadPaymentMethod(gatewayId, {
+        //             //             params: { method: methodId },
+        //             //         }),
+        //             //     )
+        //             //     .catch((err) => (error = err));
 
-                    if (error) {
-                        if (this._isMounted) {
-                            payment.unmount();
-                            this._isMounted = false;
-                        }
+        //             // if (error) {
+        //             //     if (this._isMounted) {
+        //             //         payment.unmount();
+        //             //         this._isMounted = false;
+        //             //     }
 
-                        stripeupe.onError?.(error);
-                    } else if (!this._isMounted) {
-                        await this._stripeElements?.fetchUpdates();
-                        this._mountElement(payment, stripeupe.containerId);
-                    }
-                }
-            },
-            (state) => {
-                const checkout = state.checkout.getCheckout();
+        //             //     stripeupe.onError?.(error);
+        //             // } else if (!this._isMounted) {
+        //             //     await this._stripeElements?.fetchUpdates();
+        //             //     this._mountElement(payment, stripeupe.containerId);
+        //             // }
+        //         }
+        //     },
+        //     (state) => {
+        //         const checkout = state.checkout.getCheckout();
 
-                return checkout && checkout.outstandingBalance;
-            },
-            (state) => {
-                const checkout = state.checkout.getCheckout();
+        //         return checkout && checkout.outstandingBalance;
+        //     },
+        //     (state) => {
+        //         const checkout = state.checkout.getCheckout();
 
-                return checkout && checkout.coupons;
-            },
-        );
+        //         return checkout && checkout.coupons;
+        //     },
+        // );
 
         return Promise.resolve(this._store.getState());
     }
@@ -157,6 +161,8 @@ export default class StripeUPEPaymentStrategy implements PaymentStrategy {
             );
         }
 
+        // await this._stripeElements?.submit();
+
         if (gatewayId) {
             const {
                 customer: { getCustomerOrThrow },
@@ -165,6 +171,9 @@ export default class StripeUPEPaymentStrategy implements PaymentStrategy {
                     params: { method: methodId },
                 }),
             );
+            // const {
+            //     customer: { getCustomerOrThrow },
+            // } = this._store.getState();
             const { email, isStripeLinkAuthenticated } = getCustomerOrThrow();
 
             if (isStripeLinkAuthenticated !== undefined && !email) {
@@ -209,12 +218,17 @@ export default class StripeUPEPaymentStrategy implements PaymentStrategy {
         return Promise.reject(new OrderFinalizationNotRequiredError());
     }
 
-    deinitialize(): Promise<InternalCheckoutSelectors> {
+    async deinitialize(): Promise<InternalCheckoutSelectors> {
         if (this._unsubscribe) {
             this._unsubscribe();
         }
 
-        this._stripeElements?.getElement(StripeElementType.PAYMENT)?.unmount();
+        console.log(
+            '*** deinitialize',
+            this._stripeElements?.getElement(StripeElementType.PAYMENT),
+        );
+
+        await this._stripeElements?.getElement(StripeElementType.PAYMENT)?.unmount();
         this._isMounted = false;
 
         return Promise.resolve(this._store.getState());
@@ -338,19 +352,20 @@ export default class StripeUPEPaymentStrategy implements PaymentStrategy {
         methodId: string,
     ) {
         const { containerId, style, render } = stripeupe;
-        const state = await this._store.dispatch(
-            this._paymentMethodActionCreator.loadPaymentMethod(gatewayId, {
-                params: { method: methodId },
-            }),
-        );
-        const paymentMethod = state.paymentMethods.getPaymentMethodOrThrow(methodId);
+        // const state = await this._store.dispatch(
+        //     this._paymentMethodActionCreator.loadPaymentMethod(gatewayId, {
+        //         params: { method: methodId },
+        //     }),
+        // );
+        const state = this._store.getState();
+        const paymentMethod = state.paymentMethods.getPaymentMethodOrThrow(methodId, gatewayId);
         const {
             initializationData: { stripePublishableKey, stripeConnectedAccount, shopperLanguage },
         } = paymentMethod;
 
-        if (!paymentMethod.clientToken) {
-            throw new MissingDataError(MissingDataErrorType.MissingPaymentMethod);
-        }
+        // if (!paymentMethod.clientToken) {
+        //     throw new MissingDataError(MissingDataErrorType.MissingPaymentMethod);
+        // }
 
         this._stripeUPEClient = await this._loadStripeJs(
             stripePublishableKey,
@@ -382,8 +397,21 @@ export default class StripeUPEPaymentStrategy implements PaymentStrategy {
             };
         }
 
+        const {
+            cart: {
+                currency: { code: currencyCode, decimalPlaces },
+            },
+            outstandingBalance,
+        } = state.checkout.getCheckoutOrThrow();
+
+        const stripeAmount = Math.round(outstandingBalance * Math.pow(10, decimalPlaces));
+
         this._stripeElements = this._stripeScriptLoader.getElements(this._stripeUPEClient, {
-            clientSecret: paymentMethod.clientToken,
+            mode: 'payment',
+            amount: stripeAmount,
+            currency: currencyCode.toLowerCase(),
+            paymentMethodTypes: [methodId],
+            // clientSecret: paymentMethod.clientToken,
             locale: formatLocale(shopperLanguage),
             appearance,
         });
@@ -632,8 +660,25 @@ export default class StripeUPEPaymentStrategy implements PaymentStrategy {
             return;
         }
 
-        stripeElement.mount(`#${containerId}`);
-        this._isMounted = true;
+        console.log('*** mount');
+
+        // stripeElement.mount(`#${containerId}`);
+        // this._isMounted = true;
+
+        // console.log('*** mount', this._stripeElements?.getElement(StripeElementType.PAYMENT));
+
+        // if (this._stripeElements?.getElement(StripeElementType.PAYMENT)) {
+        //     return;
+        // }
+
+        try {
+            stripeElement.mount(`#${containerId}`);
+        } catch (error) {
+            console.error(error);
+            setTimeout(() => {
+                this._mountElement(stripeElement, containerId);
+            }, 1000);
+        }
     }
 
     private _getPaymentPayload(

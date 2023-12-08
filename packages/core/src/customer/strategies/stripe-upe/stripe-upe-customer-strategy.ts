@@ -8,6 +8,7 @@ import {
 } from '../../../common/error/errors';
 import { PaymentMethodActionCreator } from '../../../payment';
 import {
+    StripeCustomerEvent,
     StripeElements,
     StripeElementType,
     StripeEventType,
@@ -36,7 +37,9 @@ export default class StripeUPECustomerStrategy implements CustomerStrategy {
         private _customerActionCreator: CustomerActionCreator,
         private _paymentMethodActionCreator: PaymentMethodActionCreator,
         private _consignmentActionCreator: ConsignmentActionCreator,
-    ) {}
+    ) {
+        console.log(this._paymentMethodActionCreator); // TODO: remove PaymentMethodActionCreator;
+    }
 
     async initialize(options: CustomerInitializeOptions): Promise<InternalCheckoutSelectors> {
         let stripeUPEClient: StripeUPEClient;
@@ -61,19 +64,26 @@ export default class StripeUPECustomerStrategy implements CustomerStrategy {
         const {
             paymentMethods: { getPaymentMethodOrThrow },
             customer: { getCustomerOrThrow },
-        } = await this._store.dispatch(
-            this._paymentMethodActionCreator.loadPaymentMethod(gatewayId, {
-                params: { method: methodId },
-            }),
-        );
+            billingAddress: { getBillingAddress },
+            consignments: { getConsignments },
+            checkout: { getCheckoutOrThrow },
+        // } = await this._store.dispatch(
+        //     this._paymentMethodActionCreator.loadPaymentMethod(gatewayId, {
+        //         params: { method: methodId },
+        //     }),
+        // );
+        } = await this._store.dispatch(this._paymentMethodActionCreator.loadPaymentMethods());
+        // } = this._store.getState();
+
         const {
-            clientToken,
+            // clientToken,
             initializationData: { stripePublishableKey, stripeConnectedAccount } = {},
         } = getPaymentMethodOrThrow(methodId, gatewayId);
         const { email, isStripeLinkAuthenticated } = getCustomerOrThrow();
 
         if (!email) {
-            if (!stripePublishableKey || !clientToken) {
+            // if (!stripePublishableKey || !clientToken) {
+            if (!stripePublishableKey) {
                 throw new MissingDataError(MissingDataErrorType.MissingPaymentToken);
             }
 
@@ -107,15 +117,28 @@ export default class StripeUPECustomerStrategy implements CustomerStrategy {
                 stripeConnectedAccount,
             );
 
+            const {
+                cart: {
+                    currency: { code: currencyCode, decimalPlaces },
+                },
+                outstandingBalance,
+            } = getCheckoutOrThrow();
+            const stripeAmount = Math.round(outstandingBalance * Math.pow(10, decimalPlaces)); // AmountTransformer
+
+            console.log(stripeAmount, currencyCode, decimalPlaces);
+
             this._stripeElements = this._stripeUPEScriptLoader.getElements(stripeUPEClient, {
-                clientSecret: clientToken,
+                mode: 'payment',
+                amount: stripeAmount,
+                currency: currencyCode.toLowerCase(),
+                // clientSecret: clientToken,
                 appearance,
             });
 
-            const {
-                billingAddress: { getBillingAddress },
-                consignments: { getConsignments },
-            } = this._store.getState();
+            // const {
+            //     billingAddress: { getBillingAddress },
+            //     consignments: { getConsignments },
+            // } = this._store.getState();
             const consignments = getConsignments();
             const id = consignments?.[0]?.id;
             const { email: billingEmail } = getBillingAddress() || {};
@@ -126,7 +149,13 @@ export default class StripeUPECustomerStrategy implements CustomerStrategy {
                 this._stripeElements.getElement(StripeElementType.AUTHENTICATION) ||
                 this._stripeElements.create(StripeElementType.AUTHENTICATION, options);
 
-            linkAuthenticationElement.on('change', (event: StripeEventType) => {
+            linkAuthenticationElement.on('change', (stripeEvent: StripeEventType) => {
+                const event = { ...stripeEvent } as unknown as StripeCustomerEvent;
+
+                event.authenticated = event.authenticated ?? false;
+
+                console.log({ stripeEvent });
+
                 if (!('authenticated' in event)) {
                     throw new MissingDataError(MissingDataErrorType.MissingCustomer);
                 }

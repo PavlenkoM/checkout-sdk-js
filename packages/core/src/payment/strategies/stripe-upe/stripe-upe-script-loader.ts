@@ -22,6 +22,9 @@ export default class StripeUPEScriptLoader {
         if (!stripeClient) {
             const stripe = await this.load();
 
+            console.log(stripePublishableKey, stripeAccount, locale);
+
+            // stripeClient = stripe('pk_test_dWvO6akB8qkn70U3iFWyMTLG00EHGnTYuU');  // PK from Stripe team
             stripeClient = stripe(stripePublishableKey, {
                 stripeAccount,
                 locale,
@@ -49,7 +52,7 @@ export default class StripeUPEScriptLoader {
 
             Object.assign(this._window, { bcStripeElements: stripeElements });
         } else {
-            stripeElements.fetchUpdates();
+            // stripeElements.fetchUpdates();
             stripeElements.update(options);
         }
 

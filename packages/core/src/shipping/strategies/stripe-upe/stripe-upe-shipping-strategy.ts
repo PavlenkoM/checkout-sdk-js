@@ -74,20 +74,25 @@ export default class StripeUPEShippingStrategy implements ShippingStrategy {
             }
         });
 
-        const state = await this._store.dispatch(
-            this._paymentMethodActionCreator.loadPaymentMethod(gatewayId, {
-                params: { method: methodId },
-            }),
-        );
-        const paymentMethod = state.paymentMethods.getPaymentMethodOrThrow(methodId, gatewayId);
+        // const state = await this._store.dispatch(
+        //     this._paymentMethodActionCreator.loadPaymentMethod(gatewayId, {
+        //         params: { method: methodId },
+        //     }),
+        // );
+        const {
+            form: { getShippingAddressFields },
+            shippingAddress: { getShippingAddress },
+            paymentMethods: { getPaymentMethodOrThrow },
+            checkout: { getCheckoutOrThrow },
+        } = await this._store.dispatch(this._paymentMethodActionCreator.loadPaymentMethods());
+        const paymentMethod = getPaymentMethodOrThrow(methodId, gatewayId);
         const {
             initializationData: { stripePublishableKey, stripeConnectedAccount },
         } = paymentMethod;
 
         if (
-            !paymentMethod ||
-            !paymentMethod.initializationData.stripePublishableKey ||
-            !paymentMethod.clientToken
+            !stripePublishableKey
+            // !paymentMethod.clientToken
         ) {
             throw new MissingDataError(MissingDataErrorType.MissingPaymentMethod);
         }
@@ -100,10 +105,10 @@ export default class StripeUPEShippingStrategy implements ShippingStrategy {
         let appearance: StripeUPEAppearanceOptions;
         const styles = getStyles && getStyles();
 
-        const {
-            form: { getShippingAddressFields },
-            shippingAddress: { getShippingAddress },
-        } = this._store.getState();
+        // const {
+        //     form: { getShippingAddressFields },
+        //     shippingAddress: { getShippingAddress },
+        // } = state;
 
         const shippingFields = getShippingAddressFields([], '');
 
@@ -136,8 +141,20 @@ export default class StripeUPEShippingStrategy implements ShippingStrategy {
             };
         }
 
+        const {
+            cart: {
+                currency: { code: currencyCode, decimalPlaces },
+            },
+            outstandingBalance,
+        } = getCheckoutOrThrow();
+
+        const stripeAmount = Math.round(outstandingBalance * Math.pow(10, decimalPlaces));
+
         this._stripeElements = this._stripeUPEScriptLoader.getElements(this._stripeUPEClient, {
-            clientSecret: paymentMethod.clientToken,
+            mode: 'payment',
+            amount: stripeAmount,
+            currency: currencyCode.toLowerCase(),
+            // clientSecret: paymentMethod.clientToken,
             appearance,
         });
 

@@ -326,13 +326,18 @@ export interface StripeElementsOptions {
      * Make sure that you have TLS enabled on any page that includes the client secret.
      * Refer to our docs to accept a payment and learn about how client_secret should be handled.
      */
-    clientSecret: string;
+    clientSecret?: string;
 
     /**
      * Match the design of your site with the appearance option.
      * The layout of each Element stays consistent, but you can modify colors, fonts, borders, padding, and more.
      */
     appearance?: StripeUPEAppearanceOptions;
+
+    mode?: 'payment'; //'payment' | 'setup' | 'subscription'
+    amount?: number;
+    currency?: string;
+    paymentMethodTypes?: String[];
 }
 
 export interface StripeUpdateElementsOptions {
