@@ -406,11 +406,15 @@ export default class StripeUPEPaymentStrategy implements PaymentStrategy {
 
         const stripeAmount = Math.round(outstandingBalance * Math.pow(10, decimalPlaces));
 
+        const paymentMethodTypes = [methodId, 'klarna'];
+
+        console.log({ paymentMethodTypes });
+
         this._stripeElements = this._stripeScriptLoader.getElements(this._stripeUPEClient, {
             mode: 'payment',
             amount: stripeAmount,
             currency: currencyCode.toLowerCase(),
-            paymentMethodTypes: [methodId],
+            paymentMethodTypes,
             // clientSecret: paymentMethod.clientToken,
             locale: formatLocale(shopperLanguage),
             appearance,
