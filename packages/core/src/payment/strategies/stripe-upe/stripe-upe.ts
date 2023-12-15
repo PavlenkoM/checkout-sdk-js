@@ -196,6 +196,7 @@ export interface StripeElementsCreateOptions {
     defaultValues?: ShippingDefaultValues | CustomerDefaultValues;
     validation?: validationElement;
     display?: { name: DisplayName };
+    layout?: any;
 }
 
 interface validationElement {
@@ -281,25 +282,27 @@ export interface StripeElements {
  */
 export interface StripeUPEAppearanceOptions {
     variables?: {
-        colorPrimary?: string;
-        colorBackground?: string;
-        colorText?: string;
-        colorDanger?: string;
-        colorTextSecondary?: string;
-        colorTextPlaceholder?: string;
-        colorIcon?: string;
-        colorIconCardError?: string;
-        colorIconRedirect?: string;
-        spacingUnit?: string;
-        borderRadius?: string;
+        [key: string]: any;
+        // colorPrimary?: string;
+        // colorBackground?: string;
+        // colorText?: string;
+        // colorDanger?: string;
+        // colorTextSecondary?: string;
+        // colorTextPlaceholder?: string;
+        // colorIcon?: string;
+        // colorIconCardError?: string;
+        // colorIconRedirect?: string;
+        // spacingUnit?: string;
+        // borderRadius?: string;
     };
 
     rules?: {
-        '.Input'?: {
-            borderColor?: string;
-            color?: string;
-            boxShadow?: string;
-        };
+        [key: string]: any;
+        // '.Input'?: {
+        //     borderColor?: string;
+        //     color?: string;
+        //     boxShadow?: string;
+        // };
     };
 }
 

@@ -386,12 +386,37 @@ export default class StripeUPEPaymentStrategy implements PaymentStrategy {
                     colorTextSecondary: styles.labelText,
                     colorTextPlaceholder: styles.fieldPlaceholderText,
                     colorIcon: styles.fieldPlaceholderText,
+                    fontFamily: 'Montserrat, Arial, Helvetica, sans-serif',
                 },
                 rules: {
                     '.Input': {
                         borderColor: styles.fieldBorder,
                         color: styles.fieldText,
                         boxShadow: styles.fieldInnerShadow,
+                    },
+                    '.AccordionItem': {
+                        borderRadius: '0',
+                        // borderLeftWidth: '0',
+                        // borderRightWidth: '0',
+                        boxShadow: 'none',
+                        fontSize: '15px',
+                        fontWeight: '500',
+                        padding: '13px 20px 13px',
+                        paddingBottom: '13px',
+                        borderBottom: '1px solid #e6e6e6',
+                        // lineHeight: '33px',
+                    },
+                    '.AccordionItem--selected, .AccordionItem:hover': {
+                        backgroundColor: '#fcfcfc',
+                        // color: '#4496f6',
+                        color: 'rgb(41, 41, 41)',
+                        fontWeight: 700,
+                    },
+                    '.TabLabel, .TabLabel--selected, .TabLabel:hover': {
+                        color: 'rgb(41, 41, 41)',
+                    },
+                    '.TabLabel--selected': {
+                        fontWeight: 700,
                     },
                 },
             };
@@ -406,7 +431,8 @@ export default class StripeUPEPaymentStrategy implements PaymentStrategy {
 
         const stripeAmount = Math.round(outstandingBalance * Math.pow(10, decimalPlaces));
 
-        const paymentMethodTypes = [methodId, 'klarna'];
+        // const paymentMethodTypes = [methodId, 'klarna'];
+        const paymentMethodTypes: string[] = [];
 
         console.log({ paymentMethodTypes });
 
@@ -444,6 +470,12 @@ export default class StripeUPEPaymentStrategy implements PaymentStrategy {
                 wallets: {
                     applePay: StripeStringConstants.NEVER,
                     googlePay: StripeStringConstants.NEVER,
+                },
+                layout: {
+                    type: 'accordion',
+                    defaultCollapsed: true,
+                    radios: true,
+                    spacedAccordionItems: false,
                 },
             });
 
