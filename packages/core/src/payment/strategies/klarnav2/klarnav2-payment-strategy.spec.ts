@@ -42,6 +42,9 @@ import {
 } from '../../../remote-checkout';
 import { PaymentMethodCancelledError } from '../../errors';
 import PaymentMethod from '../../payment-method';
+import PaymentMethodActionCreator from '../../payment-method-action-creator';
+import { PaymentMethodActionType } from '../../payment-method-actions';
+import PaymentMethodRequestSender from '../../payment-method-request-sender';
 import { getKlarna } from '../../payment-methods.mock';
 
 import KlarnaPayments from './klarna-payments';
@@ -74,6 +77,8 @@ describe('KlarnaV2PaymentStrategy', () => {
     let strategy: KlarnaV2PaymentStrategy;
     let paymentMethodMock: PaymentMethod;
     let klarnav2TokenUpdater: KlarnaV2TokenUpdater;
+    let paymentMethodActionCreator: PaymentMethodActionCreator;
+    let loadPaymentMethodAction: Observable<Action>;
 
     beforeEach(() => {
         paymentMethodMock = { ...getKlarna(), id: 'pay_now', gateway: 'klarna' };
@@ -106,10 +111,14 @@ describe('KlarnaV2PaymentStrategy', () => {
             new RemoteCheckoutRequestSender(requestSender),
             checkoutActionCreator,
         );
+        paymentMethodActionCreator = new PaymentMethodActionCreator(
+            new PaymentMethodRequestSender(requestSender),
+        );
         scriptLoader = new KlarnaV2ScriptLoader(createScriptLoader());
         klarnav2TokenUpdater = new KlarnaV2TokenUpdater(requestSender);
         strategy = new KlarnaV2PaymentStrategy(
             store,
+            paymentMethodActionCreator,
             orderActionCreator,
             remoteCheckoutActionCreator,
             scriptLoader,
@@ -133,6 +142,16 @@ describe('KlarnaV2PaymentStrategy', () => {
             },
             useStoreCredit: true,
         });
+
+        loadPaymentMethodAction = of(
+            createAction(PaymentMethodActionType.LoadPaymentMethodSucceeded, paymentMethod, {
+                methodId: paymentMethod.id,
+            }),
+        );
+
+        jest.spyOn(paymentMethodActionCreator, 'loadPaymentMethod').mockReturnValue(
+            loadPaymentMethodAction,
+        );
 
         checkoutMock = getCheckout();
 
@@ -327,6 +346,7 @@ describe('KlarnaV2PaymentStrategy', () => {
             });
             strategy = new KlarnaV2PaymentStrategy(
                 store,
+                paymentMethodActionCreator,
                 orderActionCreator,
                 remoteCheckoutActionCreator,
                 scriptLoader,
@@ -358,6 +378,7 @@ describe('KlarnaV2PaymentStrategy', () => {
             });
             strategy = new KlarnaV2PaymentStrategy(
                 store,
+                paymentMethodActionCreator,
                 orderActionCreator,
                 remoteCheckoutActionCreator,
                 scriptLoader,
@@ -393,6 +414,7 @@ describe('KlarnaV2PaymentStrategy', () => {
             });
             strategy = new KlarnaV2PaymentStrategy(
                 store,
+                paymentMethodActionCreator,
                 orderActionCreator,
                 remoteCheckoutActionCreator,
                 scriptLoader,
@@ -426,6 +448,7 @@ describe('KlarnaV2PaymentStrategy', () => {
             });
             strategy = new KlarnaV2PaymentStrategy(
                 store,
+                paymentMethodActionCreator,
                 orderActionCreator,
                 remoteCheckoutActionCreator,
                 scriptLoader,

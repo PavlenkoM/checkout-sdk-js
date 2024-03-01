@@ -580,6 +580,7 @@ export default function createPaymentStrategyRegistry(
         () =>
             new KlarnaV2PaymentStrategy(
                 store,
+                paymentMethodActionCreator,
                 orderActionCreator,
                 remoteCheckoutActionCreator,
                 new KlarnaV2ScriptLoader(scriptLoader),

@@ -16,6 +16,7 @@ import { OrderActionCreator, OrderRequestBody } from '../../../order';
 import { OrderFinalizationNotRequiredError } from '../../../order/errors';
 import { RemoteCheckoutActionCreator } from '../../../remote-checkout';
 import { PaymentMethodCancelledError } from '../../errors';
+import PaymentMethodActionCreator from '../../payment-method-action-creator';
 import { PaymentInitializeOptions, PaymentRequestOptions } from '../../payment-request-options';
 import PaymentStrategy from '../payment-strategy';
 
@@ -38,11 +39,14 @@ export default class KlarnaV2PaymentStrategy implements PaymentStrategy {
 
     constructor(
         private _store: CheckoutStore,
+        private _paymentMethodActionCreator: PaymentMethodActionCreator,
         private _orderActionCreator: OrderActionCreator,
         private _remoteCheckoutActionCreator: RemoteCheckoutActionCreator,
         private _klarnav2ScriptLoader: KlarnaV2ScriptLoader,
         private _klarnav2TokenUpdater: KlarnaV2TokenUpdater,
-    ) {}
+    ) {
+        console.log(this._klarnav2TokenUpdater);
+    }
 
     initialize(options: PaymentInitializeOptions): Promise<InternalCheckoutSelectors> {
         return this._klarnav2ScriptLoader
@@ -155,13 +159,30 @@ export default class KlarnaV2PaymentStrategy implements PaymentStrategy {
             );
         }
 
-        const state = this._store.getState();
-        const cartId = state.cart.getCartOrThrow().id;
-        const params = { params: cartId };
+        // #1 - old request
+        // const state = this._store.getState();
+        // const cartId = state.cart.getCartOrThrow().id;
+        // const params = { params: cartId };
 
-        await this._klarnav2TokenUpdater.updateClientToken(gatewayId, { params }).catch(() => {
-            throw new MissingDataError(MissingDataErrorType.MissingPaymentMethod);
-        });
+        // await this._klarnav2TokenUpdater.updateClientToken(gatewayId, { params }).catch(() => {
+        //     throw new MissingDataError(MissingDataErrorType.MissingPaymentMethod);
+        // });
+
+        // #2 - new with methodId
+        // const state = await this._store.dispatch(
+        //     this._paymentMethodActionCreator.loadPaymentMethod(gatewayId, {
+        //         ...options,
+        //         params: {
+        //             ...options?.params,
+        //             method: methodId,
+        //         },
+        //     }),
+        // );
+
+        // #3 - new without methodId
+        const state = await this._store.dispatch(
+            this._paymentMethodActionCreator.loadPaymentMethod(gatewayId),
+        );
 
         return new Promise<KlarnaLoadResponse>((resolve) => {
             const paymentMethod = state.paymentMethods.getPaymentMethodOrThrow(methodId);
