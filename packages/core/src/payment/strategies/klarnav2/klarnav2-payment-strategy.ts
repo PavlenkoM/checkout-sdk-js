@@ -179,13 +179,19 @@ export default class KlarnaV2PaymentStrategy implements PaymentStrategy {
         //     }),
         // );
 
+        console.log('*** before get Klarna config ***');
+
         // #3 - new without methodId
         const state = await this._store.dispatch(
             this._paymentMethodActionCreator.loadPaymentMethod(gatewayId),
         );
 
+        console.log('*** after get Klarna config ***');
+
         return new Promise<KlarnaLoadResponse>((resolve) => {
             const paymentMethod = state.paymentMethods.getPaymentMethodOrThrow(methodId);
+
+            console.log('*** paymentMethod ***', paymentMethod);
 
             if (!this._klarnaPayments || !paymentMethod.clientToken) {
                 throw new NotInitializedError(NotInitializedErrorType.PaymentNotInitialized);
