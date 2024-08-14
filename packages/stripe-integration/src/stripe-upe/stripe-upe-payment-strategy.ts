@@ -426,7 +426,7 @@ export default class StripeUPEPaymentStrategy implements PaymentStrategy {
         });
 
         stripeElement.on('change', (event: StripeEventType) => {
-            if (!event.value || !('type' in event.value)) {
+            if (!event?.value || !('type' in event.value)) {
                 return;
             }
 
