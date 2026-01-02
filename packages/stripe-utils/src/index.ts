@@ -29,6 +29,9 @@ export {
     StripeDisplayName,
     StripeHostWindow,
     StripeCustomerEvent,
+    StripeCheckoutElements,
+    StripeCheckoutSessionClient,
+    StripeCheckoutSessionHostWindow,
 } from './stripe';
 export {
     getStripeJsMock,
