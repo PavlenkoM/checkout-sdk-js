@@ -72,6 +72,24 @@ declare interface StripeCSPaymentInitializeOptions extends StripePaymentInitiali
     togglePreloader?(showLoader: boolean): void;
 }
 
+declare class StripeCSPaymentStrategy implements PaymentStrategy {
+    private readonly paymentIntegrationService;
+    private readonly scriptLoader;
+    private readonly stripeIntegrationService;
+    private stripeClient?;
+    private stripeCheckoutSession?;
+    constructor(paymentIntegrationService: PaymentIntegrationService, scriptLoader: StripeScriptLoader, stripeIntegrationService: StripeIntegrationService);
+    initialize(options: PaymentInitializeOptions & WithStripeCSPaymentInitializeOptions): Promise<void>;
+    execute(): Promise<void>;
+    finalize(): Promise<void>;
+    deinitialize(): Promise<void>;
+    private _initializeStripeElement;
+    private _loadStripeJs;
+    private _createStripeElement;
+    private _onStripeElementChange;
+    private _collapseStripeElement;
+}
+
 declare class StripeLinkV2ButtonStrategy implements CheckoutButtonStrategy {
     private paymentIntegrationService;
     private scriptLoader;
@@ -256,21 +274,6 @@ declare class StripeOCSPaymentStrategy implements PaymentStrategy {
     private _getTokenizedOptions;
 }
 
-declare class StripeOCSPaymentStrategy_2 implements PaymentStrategy {
-    private readonly paymentIntegrationService;
-    private readonly scriptLoader;
-    private readonly stripeIntegrationService;
-    private stripeClient?;
-    private stripeElements?;
-    constructor(paymentIntegrationService: PaymentIntegrationService, scriptLoader: StripeScriptLoader, stripeIntegrationService: StripeIntegrationService);
-    initialize(options: PaymentInitializeOptions & WithStripeCSPaymentInitializeOptions): Promise<void>;
-    execute(): Promise<void>;
-    finalize(): Promise<void>;
-    deinitialize(): Promise<void>;
-    private _initializeStripeElement;
-    private _loadStripeJs;
-}
-
 declare interface StripeUPECustomerInitializeOptions {
     /**
      * The ID of a container which the stripe iframe should be inserted.
@@ -406,7 +409,7 @@ export declare const createLinkV2ButtonStrategy: import("../../../payment-integr
     id: string;
 }>;
 
-export declare const createStripeCSPaymentStrategy: import("../../../payment-integration-api/src/resolvable-module").default<PaymentStrategyFactory<StripeOCSPaymentStrategy_2>, {
+export declare const createStripeCSPaymentStrategy: import("../../../payment-integration-api/src/resolvable-module").default<PaymentStrategyFactory<StripeCSPaymentStrategy>, {
     gateway: string;
     id: string;
 }>;
