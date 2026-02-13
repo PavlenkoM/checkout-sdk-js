@@ -11,7 +11,6 @@ import PayPalCommerceIntegrationService from '../paypal-commerce-integration-ser
 import {
     ApproveCallbackActions,
     ApproveCallbackPayload,
-    PayPalBuyNowInitializeOptions,
     PayPalCommerceButtonsOptions,
     PayPalCommerceInitializationData,
     ShippingAddressChangeCallbackPayload,
@@ -83,7 +82,7 @@ export default class PayPalCommerceButtonStrategy implements CheckoutButtonStrat
 
         await this.paypalCommerceIntegrationService.loadPayPalSdk(methodId, currencyCode, false);
 
-        this.renderButton(containerId, methodId, paypalcommerce, isBuyNowFlow);
+        this.renderButton(containerId, methodId, paypalcommerce);
     }
 
     deinitialize(): Promise<void> {
@@ -94,7 +93,6 @@ export default class PayPalCommerceButtonStrategy implements CheckoutButtonStrat
         containerId: string,
         methodId: string,
         paypalcommerce: PayPalCommerceButtonInitializeOptions,
-        isBuyNowFlow?: boolean,
     ): void {
         const { buyNowInitializeOptions, style, onComplete, onEligibilityFailure } = paypalcommerce;
 
@@ -106,17 +104,26 @@ export default class PayPalCommerceButtonStrategy implements CheckoutButtonStrat
             paymentMethod.initializationData || {};
 
         const defaultCallbacks = {
-            ...(!isBuyNowFlow &&
-                this.isPaypalCommerceAppSwitchEnabled(methodId) && {
-                    appSwitchWhenAvailable: true,
-                }),
-            createOrder: () => this.paypalCommerceIntegrationService.createOrder('paypalcommerce'),
+            ...(this.isPaypalCommerceAppSwitchEnabled(methodId) && {
+                appSwitchWhenAvailable: true,
+            }),
+            createOrder: async () => {
+                if (buyNowInitializeOptions) {
+                    const buyNowCart =
+                        await this.paypalCommerceIntegrationService.createBuyNowCartOrThrow(
+                            buyNowInitializeOptions,
+                        );
+
+                    await this.paymentIntegrationService.loadCheckout(buyNowCart.id);
+                }
+
+                return this.paypalCommerceIntegrationService.createOrder('paypalcommerce');
+            },
             onApprove: ({ orderID }: ApproveCallbackPayload) =>
                 this.paypalCommerceIntegrationService.tokenizePayment(methodId, orderID),
         };
 
         const buyNowFlowCallbacks = {
-            onClick: () => this.handleClick(buyNowInitializeOptions),
             onCancel: () => this.paymentIntegrationService.loadDefaultCheckout(),
         };
 
@@ -151,18 +158,6 @@ export default class PayPalCommerceButtonStrategy implements CheckoutButtonStrat
             onEligibilityFailure();
         } else {
             this.paypalCommerceIntegrationService.removeElement(containerId);
-        }
-    }
-
-    private async handleClick(
-        buyNowInitializeOptions?: PayPalBuyNowInitializeOptions,
-    ): Promise<void> {
-        if (buyNowInitializeOptions) {
-            const buyNowCart = await this.paypalCommerceIntegrationService.createBuyNowCartOrThrow(
-                buyNowInitializeOptions,
-            );
-
-            await this.paymentIntegrationService.loadCheckout(buyNowCart.id);
         }
     }
 
