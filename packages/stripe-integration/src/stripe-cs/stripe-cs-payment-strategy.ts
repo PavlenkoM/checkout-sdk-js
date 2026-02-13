@@ -208,6 +208,7 @@ export default class StripeCSPaymentStrategy implements PaymentStrategy {
         console.log('*** stripeActions', stripeActions);
         const stripeCheckoutSessionData = await stripeActions.getSession();
         console.log('*** stripeCheckoutSessionData', stripeCheckoutSessionData);
+        stripeActions.updateEmail(billingAddress?.email || '');
 
         const stripeElement =
             this.stripeElements.getPaymentElement() ||
