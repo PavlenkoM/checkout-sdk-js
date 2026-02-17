@@ -33,6 +33,7 @@
 - [orderBasedAutoDiscountTotal](Order.md#orderbasedautodiscounttotal)
 - [orderId](Order.md#orderid)
 - [payments](Order.md#payments)
+- [productAutoDiscountedSubtotal](Order.md#productautodiscountedsubtotal)
 - [shippingCostBeforeDiscount](Order.md#shippingcostbeforediscount)
 - [shippingCostTotal](Order.md#shippingcosttotal)
 - [status](Order.md#status)
@@ -201,6 +202,12 @@ ___
 ### payments
 
 • `Optional` **payments**: [`OrderPayments`](../README.md#orderpayments)
+
+___
+
+### productAutoDiscountedSubtotal
+
+• **productAutoDiscountedSubtotal**: `number`
 
 ___
 

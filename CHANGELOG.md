@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.869.0](https://github.com/bigcommerce/checkout-sdk-js/compare/v1.868.0...v1.869.0) (2026-02-17)
+
+
+### Features
+
+* **checkout:** CHECKOUT-9808 add `productAutoDiscountedSubtotal` field to order interface ([#3149](https://github.com/bigcommerce/checkout-sdk-js/issues/3149)) ([954f50b](https://github.com/bigcommerce/checkout-sdk-js/commit/954f50bd865c338a383594e1026e6d23ba13f9d7))
+
 ## [1.868.0](https://github.com/bigcommerce/checkout-sdk-js/compare/v1.867.0...v1.868.0) (2026-02-17)
 
 

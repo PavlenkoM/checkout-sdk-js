@@ -6552,6 +6552,7 @@ declare interface Order {
     orderBasedAutoDiscountTotal: number;
     orderId: number;
     manualDiscountTotal: number;
+    productAutoDiscountedSubtotal: number;
     payments?: OrderPayments;
     giftWrappingCostTotal: number;
     comparisonShippingCost: number;
