@@ -22,72 +22,28 @@ import { StripeIntegrationService } from '@bigcommerce/checkout-sdk/stripe-utils
 import { StripePaymentInitializeOptions } from '@bigcommerce/checkout-sdk/stripe-utils';
 import { StripeScriptLoader } from '@bigcommerce/checkout-sdk/stripe-utils';
 
-/**
- * A set of options that are required to initialize the Stripe payment method.
- *
- * Once Stripe payment is initialized, credit card form fields, provided by the
- * payment provider as iframes, will be inserted into the current page. These
- * options provide a location and styling for each of the form fields.
- *
- * ```html
- * <!-- This is where the credit card component will be inserted -->
- * <div id="container"></div>
- * ```
- *
- * ```js
- * service.initializePayment({
- *     gateway: 'stripeocs',
- *     id: 'optimized_checkout',
- *     stripeocs {
- *         containerId: 'container',
- *     },
- * });
- * ```
- */
-declare interface StripeCSPaymentInitializeOptions extends StripePaymentInitializeOptions {
-    /**
-     * The location to insert the credit card number form field.
-     */
-    containerId: string;
-    /**
-     * Checkout styles from store theme
-     */
-    style?: Record<string, StripeAppearanceValues>;
-    /**
-     * Stripe OCS layout options
-     */
-    layout?: Record<string, string | number | boolean>;
-    /**
-     * Stripe OCS appearance options for styling the accordion.
-     */
-    appearance?: StripeAppearanceOptions;
-    /**
-     * Stripe OCS fonts options for styling the accordion.
-     */
-    fonts?: StripeCustomFont[];
-    onError?(error?: Error): void;
-    render(): void;
-    paymentMethodSelect?(id: string): void;
-    handleClosePaymentMethod?(collapseElement: () => void): void;
-    togglePreloader?(showLoader: boolean): void;
-}
-
 declare class StripeCSPaymentStrategy implements PaymentStrategy {
     private readonly paymentIntegrationService;
     private readonly scriptLoader;
     private readonly stripeIntegrationService;
     private stripeClient?;
-    private stripeCheckoutSession?;
+    private stripeCheckout?;
+    private selectedMethodId?;
     constructor(paymentIntegrationService: PaymentIntegrationService, scriptLoader: StripeScriptLoader, stripeIntegrationService: StripeIntegrationService);
-    initialize(options: PaymentInitializeOptions & WithStripeCSPaymentInitializeOptions): Promise<void>;
-    execute(): Promise<void>;
+    initialize(options: PaymentInitializeOptions & WithStripeOCSPaymentInitializeOptions): Promise<void>;
+    execute(orderRequest: OrderRequestBody, options?: PaymentRequestOptions): Promise<void>;
     finalize(): Promise<void>;
     deinitialize(): Promise<void>;
     private _initializeStripeElement;
     private _loadStripeJs;
-    private _createStripeElement;
+    private _getStripeActionsOrThrow;
+    private _getStripeElement;
     private _onStripeElementChange;
     private _collapseStripeElement;
+    private _updateCheckoutSessionData;
+    private _getPaymentPayload;
+    private _processAdditionalAction;
+    private _confirmStripePaymentOrThrow;
 }
 
 declare class StripeLinkV2ButtonStrategy implements CheckoutButtonStrategy {
@@ -379,10 +335,6 @@ declare class StripeUPEPaymentStrategy implements PaymentStrategy {
     private _updateStripeElement;
     private _getStripeElementTerms;
     private _updateStripeLinkStateByElementType;
-}
-
-declare interface WithStripeCSPaymentInitializeOptions {
-    stripeocs?: StripeCSPaymentInitializeOptions;
 }
 
 declare interface WithStripeOCSCustomerInitializeOptions {
