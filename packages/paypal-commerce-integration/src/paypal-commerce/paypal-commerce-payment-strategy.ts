@@ -296,6 +296,15 @@ export default class PayPalCommercePaymentStrategy implements PaymentStrategy {
             );
         }
 
+        const containerId = this.getSmartButtonContainerId(container);
+        const smartButtonContainer = document.getElementById(containerId);
+
+        if (!smartButtonContainer) {
+            throw new InvalidArgumentError(
+                `Unable to initialize payment because element with id ${containerId} does not exist.`,
+            );
+        }
+
         const buttonOptions: PayPalCommerceButtonsOptions = {
             ...(this.isPaypalCommerceAppSwitchEnabled(methodId) && {
                 appSwitchWhenAvailable: true,
@@ -475,5 +484,9 @@ export default class PayPalCommercePaymentStrategy implements PaymentStrategy {
             state.getPaymentMethodOrThrow<PayPalCommerceInitializationData>(methodId);
 
         return paymentMethod.initializationData?.isAppSwitchEnabled || false;
+    }
+
+    private getSmartButtonContainerId(container: string) {
+        return container.split('#')[1] ?? container;
     }
 }

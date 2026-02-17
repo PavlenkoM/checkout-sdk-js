@@ -107,6 +107,11 @@ describe('BraintreePaypalPaymentStrategy', () => {
             new LoadingIndicator(),
         );
 
+        const div = document.createElement('div');
+
+        div.setAttribute('id', 'checkout-button-container');
+        document.body.appendChild(div);
+
         const state = paymentIntegrationService.getState();
 
         jest.spyOn(state, 'getPaymentMethodOrThrow').mockImplementation(() => paymentMethodMock);
@@ -188,6 +193,13 @@ describe('BraintreePaypalPaymentStrategy', () => {
                 close: jest.fn(),
             };
         });
+    });
+
+    afterEach(() => {
+        const buttonContainer = document.getElementById('checkout-button-container');
+        if (buttonContainer) {
+            buttonContainer.remove();
+        }
     });
 
     it('creates an instance of the braintree payment strategy', () => {

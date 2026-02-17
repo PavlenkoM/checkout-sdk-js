@@ -94,6 +94,11 @@ describe('PayPalCommercePaymentStrategy', () => {
             loadingIndicator,
         );
 
+        const div = document.createElement('div');
+
+        div.setAttribute('id', 'container');
+        document.body.appendChild(div);
+
         payPalMessagesSdk = {
             Messages: jest.fn(),
         };
@@ -174,6 +179,10 @@ describe('PayPalCommercePaymentStrategy', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
+        const buttonContainer = document.getElementById('container');
+        if (buttonContainer) {
+            buttonContainer.remove();
+        }
 
         delete (window as PayPalCommerceHostWindow).paypal;
     });
