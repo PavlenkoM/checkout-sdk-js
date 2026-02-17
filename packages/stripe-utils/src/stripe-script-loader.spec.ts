@@ -11,7 +11,7 @@ import {
     StripeJsVersion,
 } from './stripe';
 import StripeScriptLoader from './stripe-script-loader';
-import { getStripeCheckoutSessionMock, getStripeJsMock } from './stripe.mock';
+import { getStripeCheckoutInstanceMock, getStripeJsMock } from './stripe.mock';
 
 describe('StripePayScriptLoader', () => {
     let stripeScriptLoader: StripeScriptLoader;
@@ -188,7 +188,7 @@ describe('StripePayScriptLoader', () => {
         const checkoutSessionOptions: StripeInitCheckoutOptions = { clientSecret: 'myToken' };
 
         beforeEach(() => {
-            const checkoutSessionMock = getStripeCheckoutSessionMock();
+            const checkoutSessionMock = getStripeCheckoutInstanceMock();
 
             initCheckoutMock = jest.fn(() => Promise.resolve(checkoutSessionMock));
             stripeJsMock = {
@@ -197,9 +197,9 @@ describe('StripePayScriptLoader', () => {
             };
         });
 
-        it('initializes a checkout session', async () => {
-            await stripeScriptLoader.getCheckoutSession(stripeJsMock, checkoutSessionOptions);
-            await stripeScriptLoader.getCheckoutSession(stripeJsMock, checkoutSessionOptions);
+        it('initializes stripe checkout', async () => {
+            await stripeScriptLoader.getStripeCheckout(stripeJsMock, checkoutSessionOptions);
+            await stripeScriptLoader.getStripeCheckout(stripeJsMock, checkoutSessionOptions);
 
             expect(initCheckoutMock).toHaveBeenCalledTimes(1);
             expect(initCheckoutMock).toHaveBeenCalledWith({ clientSecret: 'myToken' });

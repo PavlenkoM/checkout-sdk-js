@@ -5,7 +5,7 @@ import {
 } from '@bigcommerce/checkout-sdk/payment-integration-api';
 
 import {
-    StripeCheckoutSession,
+    StripeCheckoutInstance,
     StripeClient,
     StripeElement,
     StripeLoadActionsResultType,
@@ -76,7 +76,7 @@ export function getStripeJsMock(): StripeClient {
         confirmPayment: jest.fn(),
         confirmCardPayment: jest.fn(),
         retrievePaymentIntent: jest.fn(),
-        initCheckout: jest.fn(() => Promise.resolve(getStripeCheckoutSessionMock())),
+        initCheckout: jest.fn(() => Promise.resolve(getStripeCheckoutInstanceMock())),
     };
 }
 
@@ -91,7 +91,7 @@ export function getFailingStripeJsMock(): StripeClient {
         confirmPayment: jest.fn(),
         confirmCardPayment: jest.fn(),
         retrievePaymentIntent: jest.fn(),
-        initCheckout: jest.fn(() => Promise.resolve(getStripeCheckoutSessionMock())),
+        initCheckout: jest.fn(() => Promise.resolve(getStripeCheckoutInstanceMock())),
     };
 }
 
@@ -168,13 +168,14 @@ export function getRetrievePaymentIntentResponseWithError() {
     };
 }
 
-export function getStripeCheckoutSessionMock(): StripeCheckoutSession {
+export function getStripeCheckoutInstanceMock(): StripeCheckoutInstance {
     return {
         loadActions: () =>
             Promise.resolve({
                 type: StripeLoadActionsResultType.SUCCESS,
                 actions: {
                     updateEmail: jest.fn(),
+                    confirm: jest.fn(),
                 },
             }),
         createPaymentElement: jest.fn(() => getStripeElementMock()),

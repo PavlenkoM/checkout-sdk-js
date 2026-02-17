@@ -30,9 +30,12 @@ export {
     StripeHostWindow,
     StripeCustomerEvent,
     StripeJsVersion,
-    StripeCheckoutSession,
+    StripeCheckoutInstance,
     StripeInitCheckoutOptions,
     StripeLoadActionsResultType,
+    StripeCheckoutSession,
+    StripeCheckoutSessionActions,
+    StripeCheckoutSessionPaymentStatus,
 } from './stripe';
 export {
     getStripeJsMock,
@@ -41,7 +44,7 @@ export {
     getFailingStripeJsMock,
     getRetrievePaymentIntentResponseSucceeded,
     getRetrievePaymentIntentResponseWithError,
-    getStripeCheckoutSessionMock,
+    getStripeCheckoutInstanceMock,
 } from './stripe.mock';
 export { default as StripePaymentInitializeOptions } from './stripe-initialize-options';
 export { default as StripeIntegrationService } from './stripe-integration-service';
