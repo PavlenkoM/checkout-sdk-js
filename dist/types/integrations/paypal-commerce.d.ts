@@ -1538,6 +1538,7 @@ declare class PayPalCommercePaymentStrategy implements PaymentStrategy {
      *
      */
     private isPaypalCommerceAppSwitchEnabled;
+    private getSmartButtonContainerId;
 }
 
 declare class PayPalCommerceRequestSender {

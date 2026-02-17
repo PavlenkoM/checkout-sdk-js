@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.867.0](https://github.com/bigcommerce/checkout-sdk-js/compare/v1.866.2...v1.867.0) (2026-02-17)
+
+
+### Features
+
+* **payment:** PAYPAL-5639 Added check if button container exists ([#3147](https://github.com/bigcommerce/checkout-sdk-js/issues/3147)) ([50b6e1b](https://github.com/bigcommerce/checkout-sdk-js/commit/50b6e1b74650a307b393a3761d6ddce32ee920d9))
+
 ### [1.866.2](https://github.com/bigcommerce/checkout-sdk-js/compare/v1.866.1...v1.866.2) (2026-02-16)
 
 ### [1.866.1](https://github.com/bigcommerce/checkout-sdk-js/compare/v1.866.0...v1.866.1) (2026-02-09)

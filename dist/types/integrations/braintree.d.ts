@@ -783,6 +783,7 @@ declare class BraintreePaypalPaymentStrategy implements PaymentStrategy {
      *
      * */
     private toggleLoadingIndicator;
+    private getSmartButtonContainerId;
 }
 
 declare class BraintreeRequestSender {
