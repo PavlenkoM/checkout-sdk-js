@@ -414,7 +414,6 @@ declare class PayPalCommerceButtonStrategy implements CheckoutButtonStrategy {
     initialize(options: CheckoutButtonInitializeOptions & WithPayPalCommerceButtonInitializeOptions): Promise<void>;
     deinitialize(): Promise<void>;
     private renderButton;
-    private handleClick;
     private onHostedCheckoutApprove;
     private onShippingAddressChange;
     private onShippingOptionsChange;

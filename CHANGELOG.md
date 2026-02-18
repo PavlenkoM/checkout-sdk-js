@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.870.0](https://github.com/bigcommerce/checkout-sdk-js/compare/v1.869.0...v1.870.0) (2026-02-18)
+
+
+### Features
+
+* **payment:** PAYPAL-5941 AppSwitch availability for PDP ([2c73892](https://github.com/bigcommerce/checkout-sdk-js/commit/2c738921351c37a147cc140b95817eab39f25cf5))
+
 ## [1.869.0](https://github.com/bigcommerce/checkout-sdk-js/compare/v1.868.0...v1.869.0) (2026-02-17)
 
 
