@@ -430,14 +430,15 @@ describe('PayPalCommerceButtonStrategy', () => {
             await strategy.initialize(initializationOptions);
             await strategy.initialize(buyNowInitializationOptions);
 
-            expect(paypalSdk.Buttons).toHaveBeenCalledWith({
-                fundingSource: paypalSdk.FUNDING.PAYPAL,
-                style: paypalCommerceOptions.style,
-                createOrder: expect.any(Function),
-                onApprove: expect.any(Function),
-                onClick: expect.any(Function),
-                onCancel: expect.any(Function),
-            });
+            expect(paypalSdk.Buttons).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    fundingSource: paypalSdk.FUNDING.PAYPAL,
+                    style: paypalCommerceOptions.style,
+                    appSwitchWhenAvailable: true,
+                    createOrder: expect.any(Function),
+                    onApprove: expect.any(Function),
+                }),
+            );
         });
 
         it('initializes PayPal button to render (with shipping options feature enabled)', async () => {
@@ -454,6 +455,7 @@ describe('PayPalCommerceButtonStrategy', () => {
                     },
                 },
             });
+
             const paymentMethodWithShippingOptionsFeature = {
                 ...paymentMethod,
                 initializationData: {
@@ -619,30 +621,19 @@ describe('PayPalCommerceButtonStrategy', () => {
                 'paypalcommerce',
             );
         });
-    });
 
-    describe('#handleClick', () => {
-        beforeEach(() => {
-            jest.spyOn(paymentIntegrationService, 'createBuyNowCart').mockReturnValue(
-                Promise.resolve(buyNowCart),
-            );
-            jest.spyOn(paymentIntegrationService, 'loadCheckout');
-        });
-
-        it('creates buy now cart on button click', async () => {
+        it('creates paypal order if buy now initialisation options is passed', async () => {
             await strategy.initialize(buyNowInitializationOptions);
-            eventEmitter.emit('onClick');
+
+            eventEmitter.emit('createOrder');
+
             await new Promise((resolve) => process.nextTick(resolve));
 
             expect(paypalCommerceIntegrationService.createBuyNowCartOrThrow).toHaveBeenCalled();
-        });
-
-        it('loads checkout related to buy now cart on button click', async () => {
-            await strategy.initialize(buyNowInitializationOptions);
-            eventEmitter.emit('onClick');
-            await new Promise((resolve) => process.nextTick(resolve));
-
             expect(paymentIntegrationService.loadCheckout).toHaveBeenCalledWith(buyNowCart.id);
+            expect(paypalCommerceIntegrationService.createOrder).toHaveBeenCalledWith(
+                'paypalcommerce',
+            );
         });
     });
 
@@ -830,6 +821,7 @@ describe('PayPalCommerceButtonStrategy', () => {
                     },
                 },
             });
+
             const address = {
                 firstName: '',
                 lastName: '',
@@ -898,6 +890,7 @@ describe('PayPalCommerceButtonStrategy', () => {
                     },
                 },
             });
+
             const consignment = getConsignment();
 
             // INFO: lets imagine that it is a state that we get after consignmentActionCreator.selectShippingOption call
