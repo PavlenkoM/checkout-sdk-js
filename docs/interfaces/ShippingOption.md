@@ -8,6 +8,7 @@
 
 - [additionalDescription](ShippingOption.md#additionaldescription)
 - [cost](ShippingOption.md#cost)
+- [costAfterDiscount](ShippingOption.md#costafterdiscount)
 - [description](ShippingOption.md#description)
 - [id](ShippingOption.md#id)
 - [imageUrl](ShippingOption.md#imageurl)
@@ -26,6 +27,12 @@ ___
 ### cost
 
 • **cost**: `number`
+
+___
+
+### costAfterDiscount
+
+• `Optional` **costAfterDiscount**: `number`
 
 ___
 

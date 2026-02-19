@@ -7997,6 +7997,7 @@ declare interface ShippingOption {
     isRecommended: boolean;
     imageUrl: string;
     cost: number;
+    costAfterDiscount?: number;
     transitTime: string;
     type: string;
 }
