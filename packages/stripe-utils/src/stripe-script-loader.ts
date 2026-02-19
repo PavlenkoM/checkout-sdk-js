@@ -78,7 +78,7 @@ export default class StripeScriptLoader {
         stripeClient: StripeClient,
         options: StripeInitCheckoutOptions,
     ): Promise<StripeCheckoutInstance> {
-        let stripeCheckout = this.stripeWindow.bcStripeCheckout;
+        let stripeCheckout = await this.getStoredStripeCheckout(options);
 
         if (!stripeCheckout) {
             stripeCheckout = await stripeClient.initCheckout(options);
@@ -107,5 +107,30 @@ export default class StripeScriptLoader {
         }
 
         return `https://js.stripe.com/${stripeJsVersion}/stripe.js`;
+    }
+
+    private async getStoredStripeCheckout(
+        options: StripeInitCheckoutOptions,
+    ): Promise<StripeCheckoutInstance | undefined> {
+        let stripeCheckout = this.stripeWindow.bcStripeCheckout;
+
+        if (!stripeCheckout) {
+            return undefined;
+        }
+
+        const { actions, error } = await stripeCheckout.loadActions();
+
+        if (error || !actions) {
+            return undefined;
+        }
+
+        const stripeCheckoutSession = await actions.getSession();
+        const stripeSessionIdFromOptions = options.clientSecret.split('_secret_')[0];
+
+        if (stripeCheckoutSession?.id === stripeSessionIdFromOptions) {
+            return stripeCheckout;
+        }
+
+        return undefined;
     }
 }
