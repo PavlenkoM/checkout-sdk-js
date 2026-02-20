@@ -551,7 +551,10 @@ describe('StripeOCSPaymentStrategy', () => {
 
             beforeEach(() => {
                 paymentIntegrationService = new PaymentIntegrationServiceMock();
-                jest.spyOn(paymentIntegrationService.getState(), 'getBillingAddress').mockReturnValue({ email: 'test@bigcommerce.com' } as BillingAddress);
+                jest.spyOn(
+                    paymentIntegrationService.getState(),
+                    'getBillingAddress',
+                ).mockReturnValue({ email: 'test@bigcommerce.com' } as BillingAddress);
             });
 
             const mockStripeCheckout = (stripeCheckoutSession?: StripeCheckoutSession) => {
@@ -585,7 +588,10 @@ describe('StripeOCSPaymentStrategy', () => {
             });
 
             it('should update email if checkout session email is not set and billing address is not set', async () => {
-                jest.spyOn(paymentIntegrationService.getState(), 'getBillingAddress').mockReturnValue(undefined);
+                jest.spyOn(
+                    paymentIntegrationService.getState(),
+                    'getBillingAddress',
+                ).mockReturnValue(undefined);
                 mockStripeCheckout({ email: '' } as StripeCheckoutSession);
 
                 await stripeCSPaymentStrategy.initialize(stripeOptions);
@@ -596,7 +602,10 @@ describe('StripeOCSPaymentStrategy', () => {
             });
 
             it('should update email if checkout session email is not set and billing address email is not set', async () => {
-                jest.spyOn(paymentIntegrationService.getState(), 'getBillingAddress').mockReturnValue({ email: '' } as BillingAddress);
+                jest.spyOn(
+                    paymentIntegrationService.getState(),
+                    'getBillingAddress',
+                ).mockReturnValue({ email: '' } as BillingAddress);
                 mockStripeCheckout({ email: '' } as StripeCheckoutSession);
 
                 await stripeCSPaymentStrategy.initialize(stripeOptions);
