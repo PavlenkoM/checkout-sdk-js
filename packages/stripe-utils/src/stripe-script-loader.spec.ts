@@ -192,7 +192,9 @@ describe('StripePayScriptLoader', () => {
 
         beforeEach(() => {
             checkoutSessionOptions = { clientSecret: 'session_id_secret_id' };
-            getSessionMock = jest.fn(() => Promise.resolve({ id: 'session_id' } as StripeCheckoutSession));
+            getSessionMock = jest.fn(() =>
+                Promise.resolve({ id: 'session_id' } as StripeCheckoutSession),
+            );
 
             const checkoutSessionMock = {
                 ...getStripeCheckoutInstanceMock(),
@@ -224,11 +226,18 @@ describe('StripePayScriptLoader', () => {
 
         it('reinitializes stripe checkout if checkout session id is different', async () => {
             await stripeScriptLoader.getStripeCheckout(stripeJsMock, checkoutSessionOptions);
-            await stripeScriptLoader.getStripeCheckout(stripeJsMock, { ...checkoutSessionOptions, clientSecret: 'session_id_new_secret_id' });
+            await stripeScriptLoader.getStripeCheckout(stripeJsMock, {
+                ...checkoutSessionOptions,
+                clientSecret: 'session_id_new_secret_id',
+            });
 
             expect(initCheckoutMock).toHaveBeenCalledTimes(2);
-            expect(initCheckoutMock).toHaveBeenNthCalledWith(1, { clientSecret: 'session_id_secret_id' });
-            expect(initCheckoutMock).toHaveBeenNthCalledWith(2, { clientSecret: 'session_id_new_secret_id' });
+            expect(initCheckoutMock).toHaveBeenNthCalledWith(1, {
+                clientSecret: 'session_id_secret_id',
+            });
+            expect(initCheckoutMock).toHaveBeenNthCalledWith(2, {
+                clientSecret: 'session_id_new_secret_id',
+            });
         });
 
         it('reinitializes stripe checkout if checkout actions returns error', async () => {
@@ -251,8 +260,12 @@ describe('StripePayScriptLoader', () => {
             await stripeScriptLoader.getStripeCheckout(stripeJsMock, checkoutSessionOptions);
 
             expect(initCheckoutMock).toHaveBeenCalledTimes(2);
-            expect(initCheckoutMock).toHaveBeenNthCalledWith(1, { clientSecret: 'session_id_secret_id' });
-            expect(initCheckoutMock).toHaveBeenNthCalledWith(2, { clientSecret: 'session_id_secret_id' });
+            expect(initCheckoutMock).toHaveBeenNthCalledWith(1, {
+                clientSecret: 'session_id_secret_id',
+            });
+            expect(initCheckoutMock).toHaveBeenNthCalledWith(2, {
+                clientSecret: 'session_id_secret_id',
+            });
         });
 
         it('reinitializes stripe checkout if checkout actions not exists', async () => {
@@ -274,8 +287,12 @@ describe('StripePayScriptLoader', () => {
             await stripeScriptLoader.getStripeCheckout(stripeJsMock, checkoutSessionOptions);
 
             expect(initCheckoutMock).toHaveBeenCalledTimes(2);
-            expect(initCheckoutMock).toHaveBeenNthCalledWith(1, { clientSecret: 'session_id_secret_id' });
-            expect(initCheckoutMock).toHaveBeenNthCalledWith(2, { clientSecret: 'session_id_secret_id' });
+            expect(initCheckoutMock).toHaveBeenNthCalledWith(1, {
+                clientSecret: 'session_id_secret_id',
+            });
+            expect(initCheckoutMock).toHaveBeenNthCalledWith(2, {
+                clientSecret: 'session_id_secret_id',
+            });
         });
 
         it('reinitializes stripe checkout if checkout session is not different', async () => {
@@ -301,11 +318,51 @@ describe('StripePayScriptLoader', () => {
             };
 
             await stripeScriptLoader.getStripeCheckout(stripeJsMock, checkoutSessionOptions);
-            await stripeScriptLoader.getStripeCheckout(stripeJsMock, { ...checkoutSessionOptions, clientSecret: 'session_id_new_secret_id' });
+            await stripeScriptLoader.getStripeCheckout(stripeJsMock, {
+                ...checkoutSessionOptions,
+                clientSecret: 'session_id_new_secret_id',
+            });
 
             expect(initCheckoutMock).toHaveBeenCalledTimes(2);
-            expect(initCheckoutMock).toHaveBeenNthCalledWith(1, { clientSecret: 'session_id_secret_id' });
-            expect(initCheckoutMock).toHaveBeenNthCalledWith(2, { clientSecret: 'session_id_new_secret_id' });
+            expect(initCheckoutMock).toHaveBeenNthCalledWith(1, {
+                clientSecret: 'session_id_secret_id',
+            });
+            expect(initCheckoutMock).toHaveBeenNthCalledWith(2, {
+                clientSecret: 'session_id_new_secret_id',
+            });
+        });
+
+        it('reinitializes stripe checkout if stripe throw an unexpected error', async () => {
+            getSessionMock = jest.fn(() => Promise.resolve(undefined));
+
+            const checkoutSessionMock = {
+                ...getStripeCheckoutInstanceMock(),
+                loadActions: () =>
+                    Promise.reject({
+                        type: StripeLoadActionsResultType.ERROR,
+                        message: 'unexpected error',
+                    }),
+            };
+
+            initCheckoutMock = jest.fn(() => Promise.resolve(checkoutSessionMock));
+            stripeJsMock = {
+                ...stripeUPEJsDefaultMock,
+                initCheckout: initCheckoutMock,
+            };
+
+            await stripeScriptLoader.getStripeCheckout(stripeJsMock, checkoutSessionOptions);
+            await stripeScriptLoader.getStripeCheckout(stripeJsMock, {
+                ...checkoutSessionOptions,
+                clientSecret: 'session_id_new_secret_id',
+            });
+
+            expect(initCheckoutMock).toHaveBeenCalledTimes(2);
+            expect(initCheckoutMock).toHaveBeenNthCalledWith(1, {
+                clientSecret: 'session_id_secret_id',
+            });
+            expect(initCheckoutMock).toHaveBeenNthCalledWith(2, {
+                clientSecret: 'session_id_new_secret_id',
+            });
         });
     });
 });
