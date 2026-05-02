@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.905.1](https://github.com/bigcommerce/checkout-sdk-js/compare/v1.905.0...v1.905.1) (2026-05-02)
+
+
+### Bug Fixes
+
+* **payment:** CHECKOUT-9963 Fix error related to container not found for bluesnap ([#3235](https://github.com/bigcommerce/checkout-sdk-js/issues/3235)) ([ef35c12](https://github.com/bigcommerce/checkout-sdk-js/commit/ef35c12baeb557c327715b74aa7e6cbe4f2ec8dc))
+
 ## [1.905.0](https://github.com/bigcommerce/checkout-sdk-js/compare/v1.904.2...v1.905.0) (2026-04-24)
 
 
