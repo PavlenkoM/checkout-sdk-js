@@ -1648,12 +1648,12 @@ declare interface PayPalCommerceVenmoPaymentInitializeOptions {
 
 declare class PayPalCommerceVenmoPaymentStrategy implements PaymentStrategy {
     private paymentIntegrationService;
-    private paypalCommerceIntegrationService;
+    private paypalIntegrationService;
     private loadingIndicator;
     private loadingIndicatorContainer?;
     private orderId?;
     private paypalButton?;
-    constructor(paymentIntegrationService: PaymentIntegrationService, paypalCommerceIntegrationService: PayPalCommerceIntegrationService, loadingIndicator: LoadingIndicator);
+    constructor(paymentIntegrationService: PaymentIntegrationService, paypalIntegrationService: PayPalIntegrationService, loadingIndicator: LoadingIndicator);
     initialize(options?: PaymentInitializeOptions & WithPayPalCommerceVenmoPaymentInitializeOptions): Promise<void>;
     execute(payload: OrderRequestBody, options?: PaymentRequestOptions): Promise<void>;
     finalize(): Promise<void>;
