@@ -751,7 +751,7 @@ declare class BraintreePaypalPaymentStrategy implements PaymentStrategy {
     private loadingIndicator;
     private paymentMethod?;
     private braintreeHostWindow;
-    private braintree?;
+    private braintreeButtonOptions?;
     private braintreeTokenizePayload?;
     private paypalButtonRender?;
     private loadingIndicatorContainer?;
