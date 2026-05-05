@@ -36,14 +36,16 @@ declare class AdyenV2PaymentStrategy implements PaymentStrategy {
 }
 
 declare class Adyenv3PaymentStrategy implements PaymentStrategy {
-    private _paymentIntegrationService;
-    private _scriptLoader;
-    private _adyenClient?;
-    private _cardVerificationComponent?;
-    private _componentState?;
-    private _paymentComponent?;
-    private _paymentInitializeOptions?;
-    constructor(_paymentIntegrationService: PaymentIntegrationService, _scriptLoader: AdyenV3ScriptLoader);
+    private paymentIntegrationService;
+    private scriptLoader;
+    private static readonly mountContainerMaxWaitMs;
+    private static readonly mountContainerPollIntervalMs;
+    private adyenClient?;
+    private cardVerificationComponent?;
+    private componentState?;
+    private paymentComponent?;
+    private paymentInitializeOptions?;
+    constructor(paymentIntegrationService: PaymentIntegrationService, scriptLoader: AdyenV3ScriptLoader);
     initialize(options: PaymentInitializeOptions & WithAdyenV3PaymentInitializeOptions): Promise<void>;
     execute(payload: OrderRequestBody, options?: PaymentRequestOptions): Promise<void>;
     finalize(): Promise<void>;
@@ -60,6 +62,7 @@ declare class Adyenv3PaymentStrategy implements PaymentStrategy {
     private _validateCardData;
     private _mapCardErrors;
     private _mountElement;
+    private _waitForMountContainer;
 }
 
 export declare const createAdyenV2PaymentStrategy: import("../../../payment-integration-api/src/resolvable-module").default<PaymentStrategyFactory<AdyenV2PaymentStrategy>, {
